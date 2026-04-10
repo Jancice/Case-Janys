@@ -8,7 +8,7 @@ TICKERS = ["ASAI3", "RECV3", "MOVI3", "BRKM5", "HBSA3", "ITUB4", "BBDC4", "OPCT3
 st.set_page_config(page_title="Hipótese Capital - IA", layout="wide")
 
 
-#@st.cache_data avisa ao Streamlit: "Se o ticker for o mesmo, não rode a função de novo, use a memória"
+#@st.cache_data "Se o ticker for o mesmo, não rode a função de novo, use a memória"
 
 @st.cache_data(show_spinner=False)
 def coletar_dados_cacheados(ticker_selecionado):
@@ -36,10 +36,10 @@ with col_btn:
 if gerar:
     with st.spinner(f"Extraindo dados e analisando {ticker} (Buscando em cache se disponível)..."):
         
-        # 1. Coleta (Cacheadas)
+        # 1. Coleta
         d_cadastrais, d_mercado, noticias = coletar_dados_cacheados(ticker)
         
-        # 2. Processamento IA (Cacheado)
+        # 2. Processamento IA
         relatorio = gerar_relatorio_cacheado(d_cadastrais, d_mercado, noticias)
         
         st.success("Briefing gerado com sucesso!")
@@ -52,8 +52,16 @@ if gerar:
             col_ia, col_dados = st.columns([2, 1])
             
             with col_ia:
-                st.header(f"Síntese do Analista IA ({ticker})")
-                st.info(f"**Classificação B3:** {relatorio.get('classificacao_b3', 'N/D')}")
+                # 1. Resgata o nome da empresa dos dados extraídos
+                nome_empresa = d_cadastrais.get('nome', 'Empresa Indisponível')
+                
+                # 2. Cria um título visualmente muito mais atrativo usando Markdown
+                st.markdown(f"<h1 style='color: #1E88E5;'>{nome_empresa} <span style='color: #6c757d; font-size: 0.6em;'>{ticker}</span></h1>", unsafe_allow_html=True)
+                st.caption("Síntese executiva gerada por Inteligência Artificial")
+                st.markdown("<br>", unsafe_allow_html=True)
+                
+                # 3. Mantém a info da B3
+                st.info(f"**Classificação B3:** {relatorio.get('classificacao_b3', 'N/D')} (Fundamentus)")
                 
                 st.subheader("Resumo do Negócio")
                 st.write(relatorio.get('resumo_negocio', 'N/D'))
@@ -63,7 +71,7 @@ if gerar:
                 
                 st.subheader("Radar de Notícias")
                 
-                # Resgata o novo objeto de notícias
+                # Resgata o novo objeto de notícias (usa um dict vazio como fallback se não achar)
                 analise_noticias = relatorio.get('analise_noticias', {})
                 
                 if analise_noticias:
@@ -79,11 +87,11 @@ if gerar:
                         if sentimento == "Positivo":
                             emoji = "🟢"
                         elif sentimento == "Negativo":
-                            emoji = "🔵"
+                            emoji = "🔴"
                         else:
                             emoji = "⚪"
                         
-                        # Desenha o Título com e a Justificativa em texto menor (caption)
+                        # Desenha o Título com Emoji e a Justificativa em texto menor (caption)
                         st.markdown(f"{emoji} **{noti.get('titulo_noticia', 'N/D')}**")
                         st.caption(f"_{noti.get('justificativa_breve', '')}_")
                         st.markdown("<br>", unsafe_allow_html=True)
@@ -91,13 +99,13 @@ if gerar:
                     # Fallback caso a IA tenha falhado no formato
                     st.write(relatorio.get('sintese_noticias', 'Erro ao processar as notícias.'))
                 
-                st.subheader("Perguntas para o Comitê")
+                st.subheader("Perguntas para Investigação")
                 perguntas = relatorio.get('perguntas_investigacao', [])
                 for p in perguntas:
                     st.markdown(f"- {p}")
                     
             with col_dados:
-                st.header("🗄️ Dados Brutos Extraídos")
+                st.header(" Dados Brutos Extraídos")
                 
                 with st.expander("📊 Dados de Mercado (Value Investing)", expanded=True):
                     # Função auxiliar para formatar os números adequadamente (Pt-BR)
@@ -140,5 +148,3 @@ if gerar:
                             st.divider()
                     else:
                         st.write("Nenhuma notícia recente encontrada no feed.")
-
-                        

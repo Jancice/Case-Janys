@@ -8,7 +8,7 @@ load_dotenv()
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def gerar_relatorio_ia(dados_cadastrais: dict, dados_mercado: dict, noticias: list) -> dict:
-    """Envia os dados para a IA via Groq (Llama 3) e força a saída em JSON."""
+    #Envia os dados para a IA via Groq (Llama 3) e força a saída em JSON.
     
     prompt = f"""
     Você é um Analista de Ações Sênior na gestora Hipótese Capital (foco em Value Investing).
@@ -19,18 +19,18 @@ def gerar_relatorio_ia(dados_cadastrais: dict, dados_mercado: dict, noticias: li
     NOTÍCIAS RECENTES: {json.dumps(noticias, ensure_ascii=False)}
     
     INSTRUÇÕES CRÍTICAS:
-    1. CLASSIFICAÇÃO B3: Use EXATAMENTE a taxonomia oficial da B3 (Setor / Sub-setor / Segmento).
+    1. CLASSIFICAÇÃO: Utilize os campos 'setor_origem' e 'industria_origem' fornecidos nos DADOS CADASTRAIS para compor a taxonomia. Não tente adivinhar ou traduzir.
     2. Seja analítico, cético e não faça recomendações explícitas de compra/venda.
     3. Retorne APENAS um objeto JSON válido, sem texto adicional.
     
     Você DEVE retornar um objeto JSON com as seguintes chaves exatas:
-    - "classificacao_b3": (string) Taxonomia oficial da B3.
-    - "resumo_negocio": (string) Resumo da empresa e vantagens competitivas em português.
-    - "interpretacao_indicadores": (string) Análise cética dos indicadores de Value Investing.
+    - "classificacao_b3": (string) Formato exigido: "Setor: [setor_origem] / Subsetor: [industria_origem]".
+    - "resumo_negocio": (string) Resumo da empresa e vantagens competitivas em português, baseado na 'descricao_original'.
+    - "interpretacao_indicadores": (string) Análise cética dos indicadores de Value Investing fornecidos.
     - "analise_noticias": (objeto) Contendo duas chaves:
-        - "classificacao_individual": (lista de objetos) Para cada notícia, crie um objeto com: "titulo_noticia" (string), "sentimento" (string com EXATAMENTE "Positivo", "Negativo" ou "Neutro") e "justificativa_breve" (string de 4 linha explicando o impacto).
-        - "sintese_geral": (string) Resumo de 2 linhas do impacto desse bloco de notícias na tese.
-    - "perguntas_investigacao": (lista de strings) Exatas 3 perguntas críticas para o comitê.
+        - "classificacao_individual": (lista de objetos) Para cada notícia, crie um objeto com: "titulo_noticia" (string), "sentimento" (string com EXATAMENTE "Positivo", "Negativo" ou "Neutro") e "justificativa_breve" (string de 4 linhas bem formatadadas, explicando o impacto).
+        - "sintese_geral": (string) Resumo de um parágrafo, formatado, linhas do impacto desse bloco de notícias na tese.
+    - "perguntas_investigacao": (lista de strings) Exatas 3 perguntas críticas e provocativas para o comitê.
     """
 
     try:
