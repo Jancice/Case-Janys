@@ -8,7 +8,7 @@ load_dotenv()
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 
 def gerar_relatorio_ia(dados_cadastrais: dict, dados_mercado: dict, noticias: list) -> dict:
-    #Envia os dados para a IA via Groq (Llama 3) e força a saída em JSON.
+    """Envia os dados para a IA via Groq (Llama 3) e força a saída em JSON."""
     
     prompt = f"""
     Você é um Analista de Ações Sênior na gestora Hipótese Capital (foco em Value Investing).
@@ -30,7 +30,7 @@ def gerar_relatorio_ia(dados_cadastrais: dict, dados_mercado: dict, noticias: li
     - "analise_noticias": (objeto) Contendo duas chaves:
         - "classificacao_individual": (lista de objetos) Para cada notícia, crie um objeto com: "titulo_noticia" (string), "sentimento" (string com EXATAMENTE "Positivo", "Negativo" ou "Neutro") e "justificativa_breve" (string de 4 linhas bem formatadadas, explicando o impacto).
         - "sintese_geral": (string) Resumo de um parágrafo, formatado, linhas do impacto desse bloco de notícias na tese.
-    - "perguntas_investigacao": (lista de strings) Exatas 3 perguntas críticas e provocativas para o comitê.
+    - "perguntas_investigacao": (lista de strings) Exatas 3 perguntas críticas que relacionem as noticias e informações coletadas sobre o ativo que o investidor deveria investigar antes de tomar uma decisão.
     """
 
     try:

@@ -1,0 +1,35 @@
+# Hipotese Capital - AI Briefing Automator
+
+Este repositório contém a solução técnica para a Fase 2 do processo seletivo da gestora Hipótese Capital (Case Data Science & AI).
+
+O projeto consiste em um protótipo de automação para a geração de briefings semanais, desenhado para apoiar times de análise focados em Value Investing. A aplicação executa a coleta de dados de mercado e cadastrais, extrai as notícias mais recentes e utiliza um modelo de linguagem (LLM) para gerar uma síntese crítica do ativo e formular perguntas investigativas.
+
+## Arquitetura do Sistema
+
+O projeto foi estruturado em quatro módulos principais:
+
+* **app.py**: Ponto de entrada da aplicação. Gerencia a interface gráfica via Streamlit, o estado de cache das requisições e a lógica de apresentação. Implementa o padrão fail-fast para interrupção de fluxo em caso de ativos inválidos.
+* **data_fetcher.py**: Módulo de extração e consolidação de dados. Integra chamadas de API (yfinance), leitura de feeds RSS (feedparser) e rotinas de web scraping resiliente (requests e pandas) para a busca precisa da taxonomia do setor de origem.
+* **ai_analyzer.py**: Módulo de Inteligência Artificial. Gerencia a integração com a API do Groq (modelo llama-3.3-70b-versatile). O prompt engineering foi desenhado para forçar a saída estruturada em formato JSON e aplicar o framework mental de Value Investing da gestora.
+* **database.py**: Camada de persistência de dados utilizando SQLite. Modela um banco de dados relacional com divisão clara entre dados estáticos (tabela de empresas) e dados temporais (tabela de histórico de análises), garantindo integridade e evitando redundância de gravação.
+
+## Requisitos do Sistema
+
+* Python 3.9 ou superior.
+* Chave de API ativa do provedor Groq. (Pode ser obtida no site: https://console.groq.com/keys)
+
+## Instruções de Instalação e Execução
+
+Siga o procedimento abaixo para configurar o ambiente e executar a aplicação localmente.
+
+1) Instalação dos requistos:
+   Abra o terminal e rode pip install -r requirements.txt
+
+2) Crie um arquivo chamado .env na pasta do código fonte do projeto e adicione o seguinte texto (adicione também a sua chave GROQ):
+    GROQ_API_KEY=insira_sua_chave_aqui
+
+3) Abra o terminal na pasta do código fonte e rode o comando:
+    streamlit run app.py
+    - Caso não reconheça, rode:
+    py -m streamlit run app.py
+

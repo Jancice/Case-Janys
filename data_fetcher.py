@@ -8,9 +8,9 @@ import pandas as pd
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def buscar_dados_cadastrais(ticker: str) -> dict:
-    #Busca Setor e Subsetor precisos via Web Scraping no Fundamentus, com fallback para o YFinance.
+    """Busca Setor e Subsetor precisos via Web Scraping no Fundamentus, com fallback para o YFinance."""
     
-    # O Fundamentus não usa o sufixo .SA nas URLs (necessario tirar)
+    # O Fundamentus não usa o sufixo .SA nas URLs
     ticker_limpo = ticker.upper().replace(".SA", "")
     url = f"https://www.fundamentus.com.br/detalhes.php?papel={ticker_limpo}"
     
@@ -27,10 +27,10 @@ def buscar_dados_cadastrais(ticker: str) -> dict:
         tabelas = pd.read_html(response.text)
         df_cadastral = tabelas[0]
         
-        #solução do problema do webscrapping: o caractere '?' estava atrapalhando a busca exata.
+        # O SEGREDO ESTÁ AQUI: Limpa a coluna 0 para remover o "?" e espaços extras que o site coloca
         df_cadastral[0] = df_cadastral[0].astype(str).str.replace('?', '', regex=False).str.strip()
         
-        # Agora a busca no fundamentus vai funcionar
+        # Agora a busca exata vai funcionar perfeitamente
         setor = df_cadastral[df_cadastral[0] == 'Setor'].iloc[0, 1] if not df_cadastral[df_cadastral[0] == 'Setor'].empty else "N/D"
         subsetor = df_cadastral[df_cadastral[0] == 'Subsetor'].iloc[0, 1] if not df_cadastral[df_cadastral[0] == 'Subsetor'].empty else "N/D"
         nome = df_cadastral[df_cadastral[0] == 'Empresa'].iloc[0, 1] if not df_cadastral[df_cadastral[0] == 'Empresa'].empty else "N/D"
@@ -57,7 +57,7 @@ def buscar_dados_cadastrais(ticker: str) -> dict:
     
 
 def buscar_dados_cadastrais_yfinance(ticker: str) -> dict:
-    #Função de contingência (Fallback) caso o Fundamentus fique fora do ar.
+    """Função de contingência (Fallback) caso o Fundamentus fique fora do ar."""
     ticker_sa = f"{ticker}.SA" if not ticker.endswith(".SA") else ticker
     
     try:
@@ -74,7 +74,7 @@ def buscar_dados_cadastrais_yfinance(ticker: str) -> dict:
         return {"erro": "Dados cadastrais indisponíveis em todas as fontes."}
 
 def buscar_dados_mercado(ticker: str) -> dict:
-    # Busca cotação e indicadores (Value Investing).
+    # Busca cotação e indicadores fundamentalistas (Value Investing).
     ticker_sa = f"{ticker}.SA" if not ticker.endswith(".SA") else ticker
     
     try:
@@ -103,8 +103,7 @@ def buscar_noticias(ticker: str, limite: int = 5) -> list[dict]:
         for entry in feed.entries[:limite]:
             noticias.append({
                 "titulo": entry.title,
-                "data": entry.published if hasattr(entry, 'published') else "N/D",
-                "link": entry.link
+                "data": entry.published if hasattr(entry, 'published') else "N/D"
             })
             
         return noticias if noticias else [{"aviso": "Nenhuma notícia recente encontrada."}]

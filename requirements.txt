@@ -1,0 +1,8 @@
+streamlit
+pandas
+yfinance
+feedparser
+requests
+groq
+python-dotenv
+lxml
