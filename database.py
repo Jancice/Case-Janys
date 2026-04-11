@@ -75,7 +75,7 @@ def salvar_analise(ticker, d_cadastrais, d_mercado, relatorio):
     conn.close()
 
 def buscar_historico():
-    """Faz um JOIN das duas tabelas para exibir no Dashboard de forma amigável"""
+    #Faz um JOIN das duas tabelas para exibir no Dashboard de forma amigável
     conn = conectar()
     
     query = '''
